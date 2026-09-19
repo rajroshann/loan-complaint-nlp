@@ -1,0 +1,589 @@
+{% extends "base.html" %}
+{% block title %}Analyze — ReliefIQ{% endblock %}
+
+{% block content %}
+
+<div class="
+    max-w-5xl
+    mx-auto
+    px-4
+    sm:px-6
+    py-10
+    sm:py-14
+">
+
+    <!-- ================= ANALYZE CARD ================= -->
+
+    <div class="
+        bg-[#F8F7F3]
+        dark:bg-slate-800
+        rounded-2xl
+        shadow-[0_15px_40px_rgba(15,23,42,0.08)]
+        dark:shadow-xl
+        border
+        border-[#E2E0DA]
+        dark:border-slate-700
+        p-5
+        sm:p-7
+        lg:p-8
+    ">
+
+        <h1 class="
+            text-2xl
+            sm:text-3xl
+            font-semibold
+            mb-2
+            text-[#172033]
+            dark:text-white
+        ">
+            Analyze a Complaint
+        </h1>
+
+        <p class="
+            text-[#667085]
+            dark:text-slate-400
+            text-sm
+            leading-relaxed
+            mb-6
+            max-w-3xl
+        ">
+            Paste your complaint narrative below. This reflects patterns from
+            historical outcomes — not a guarantee of what will happen to your case.
+        </p>
+
+
+        <!-- Complaint -->
+        <textarea
+            id="complaint-text"
+            rows="7"
+            placeholder="Describe your complaint in your own words (not JSON) — e.g. 'I was charged an unauthorized fee...'"
+            class="
+                w-full
+                min-w-0
+                rounded-xl
+                border
+                border-[#C8CDD5]
+                dark:border-slate-600
+                bg-white
+                dark:bg-slate-700
+                text-[#172033]
+                dark:text-white
+                placeholder:text-slate-400
+                dark:placeholder:text-slate-500
+                px-4
+                py-3
+                leading-relaxed
+                resize-y
+                focus:outline-none
+                focus:ring-2
+                focus:ring-blue-500/30
+                focus:border-blue-500
+                transition
+            "
+        ></textarea>
+
+
+        <div class="
+            flex
+            flex-col
+            sm:flex-row
+            sm:justify-between
+            sm:items-center
+            gap-2
+            mt-2
+            mb-5
+        ">
+
+            <span
+                id="char-counter"
+                class="text-xs text-slate-400 dark:text-slate-500"
+            >
+                0 / 10 minimum
+            </span>
+
+            <span class="
+                text-xs
+                text-slate-400
+                dark:text-slate-500
+            ">
+                Tip: Ctrl+Enter to analyze
+            </span>
+
+        </div>
+
+
+        <button
+            id="analyze-btn"
+            class="
+                w-full
+                sm:w-auto
+                bg-gradient-to-r
+                from-blue-600
+                to-emerald-600
+                text-white
+                rounded-lg
+                px-7
+                py-2.5
+                font-semibold
+                shadow-md
+                shadow-blue-900/10
+                hover:from-blue-700
+                hover:to-emerald-700
+                hover:shadow-lg
+                active:scale-[0.99]
+                transition-all
+                duration-200
+                disabled:opacity-50
+            "
+        >
+            Analyze
+        </button>
+
+    </div>
+
+
+    <!-- ================= LOADING ================= -->
+
+    <div
+        id="loading"
+        class="
+            hidden
+            mt-6
+            text-center
+            text-[#667085]
+            dark:text-slate-400
+            text-sm
+        "
+    >
+        Analyzing — this can take a few seconds...
+    </div>
+
+
+    <!-- ================= RESULT ================= -->
+
+    <div
+        id="result-card"
+        class="
+            hidden
+            mt-6
+            bg-[#F8F7F3]
+            dark:bg-slate-800
+            rounded-2xl
+            shadow-[0_15px_40px_rgba(15,23,42,0.08)]
+            dark:shadow-xl
+            border
+            border-[#E2E0DA]
+            dark:border-slate-700
+            p-5
+            sm:p-7
+            lg:p-8
+        "
+    >
+
+        <!-- Result Header -->
+        <div class="
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            gap-4
+            sm:gap-6
+            mb-6
+        ">
+
+            <svg
+                width="90"
+                height="90"
+                viewBox="0 0 90 90"
+                class="shrink-0 mx-auto sm:mx-0"
+            >
+
+                <circle
+                    cx="45"
+                    cy="45"
+                    r="38"
+                    fill="none"
+                    stroke-width="8"
+                    class="stroke-slate-200 dark:stroke-slate-700"
+                />
+
+                <circle
+                    id="gauge-ring"
+                    cx="45"
+                    cy="45"
+                    r="38"
+                    fill="none"
+                    stroke-width="8"
+                    stroke-dasharray="238.76"
+                    stroke-dashoffset="238.76"
+                    stroke-linecap="round"
+                    transform="rotate(-90 45 45)"
+                    class="transition-all duration-1000 ease-out"
+                />
+
+                <text
+                    id="gauge-text"
+                    x="45"
+                    y="52"
+                    text-anchor="middle"
+                    class="text-lg font-bold"
+                    fill="currentColor"
+                ></text>
+
+            </svg>
+
+
+            <div class="text-center sm:text-left">
+
+                <h2
+                    id="result-label"
+                    class="text-xl font-semibold"
+                ></h2>
+
+                <p class="
+                    text-xs
+                    text-[#667085]
+                    dark:text-slate-400
+                    mt-1
+                ">
+                    Estimated probability of relief
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Meaning -->
+        <p
+            id="result-meaning"
+            class="
+                text-[#526071]
+                dark:text-slate-300
+                text-sm
+                leading-relaxed
+                mb-6
+                border-l-4
+                border-slate-300
+                dark:border-slate-600
+                pl-3
+            "
+        ></p>
+
+
+        <!-- Explanation -->
+        <div class="mb-6">
+
+            <div class="
+                flex
+                items-center
+                justify-between
+                gap-3
+                mb-2
+            ">
+
+                <h3 class="
+                    text-sm
+                    font-semibold
+                    text-[#344054]
+                    dark:text-slate-200
+                ">
+                    What this means for you
+                </h3>
+
+                <button
+                    id="copy-explanation-btn"
+                    onclick="copyText('result-explanation', 'copy-explanation-btn')"
+                    class="
+                        shrink-0
+                        text-xs
+                        text-slate-400
+                        dark:text-slate-500
+                        hover:text-slate-600
+                        dark:hover:text-slate-300
+                        transition
+                    "
+                >
+                    📋 Copy
+                </button>
+
+            </div>
+
+            <p
+                id="result-explanation"
+                class="
+                    text-[#344054]
+                    dark:text-slate-300
+                    leading-relaxed
+                    text-sm
+                "
+            ></p>
+
+        </div>
+
+
+        <!-- Next Steps -->
+        <div class="
+            mb-6
+            bg-[#EEF1F5]
+            dark:bg-slate-700/50
+            rounded-xl
+            p-4
+            sm:p-5
+        ">
+
+            <h3 class="
+                text-sm
+                font-semibold
+                text-[#344054]
+                dark:text-slate-200
+                mb-2
+            ">
+                Suggested next steps
+            </h3>
+
+            <p
+                id="result-tip"
+                class="
+                    text-[#526071]
+                    dark:text-slate-300
+                    leading-relaxed
+                    text-sm
+                "
+            ></p>
+
+        </div>
+
+
+        <!-- Important Words -->
+        <div class="
+            grid
+            grid-cols-1
+            sm:grid-cols-2
+            gap-6
+        ">
+
+            <div>
+
+                <h4 class="
+                    text-xs
+                    font-semibold
+                    text-emerald-700
+                    dark:text-emerald-400
+                    uppercase
+                    tracking-wide
+                    mb-2
+                ">
+                    Pushed toward relief
+                </h4>
+
+                <div
+                    id="words-relief"
+                    class="flex flex-wrap gap-1.5"
+                ></div>
+
+            </div>
+
+
+            <div>
+
+                <h4 class="
+                    text-xs
+                    font-semibold
+                    text-rose-700
+                    dark:text-rose-400
+                    uppercase
+                    tracking-wide
+                    mb-2
+                ">
+                    Pushed toward no relief
+                </h4>
+
+                <div
+                    id="words-no-relief"
+                    class="flex flex-wrap gap-1.5"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+<script>
+async function copyText(sourceElementId, buttonId) {
+    const source = document.getElementById(sourceElementId);
+    const btn = document.getElementById(buttonId);
+
+    if (!source || !btn) {
+        return;
+    }
+
+    const text = source.textContent.trim();
+    const original = btn.textContent;
+
+    try {
+        // Modern Clipboard API
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            // Fallback for environments where Clipboard API is unavailable
+            const temp = document.createElement("textarea");
+
+            temp.value = text;
+            temp.style.position = "fixed";
+            temp.style.left = "-9999px";
+            temp.style.top = "0";
+
+            document.body.appendChild(temp);
+
+            temp.focus();
+            temp.select();
+
+            const successful = document.execCommand("copy");
+
+            temp.remove();
+
+            if (!successful) {
+                throw new Error("Copy failed");
+            }
+        }
+
+        btn.textContent = "✓ Copied!";
+
+    } catch (err) {
+        console.error("Copy failed:", err);
+        btn.textContent = "Copy failed";
+    }
+
+    setTimeout(() => {
+        btn.textContent = original;
+    }, 2000);
+}
+
+
+
+
+const token = localStorage.getItem("access_token");
+if (!token) window.location.href = "/login-page";
+
+const textarea = document.getElementById("complaint-text");
+const charCounter = document.getElementById("char-counter");
+
+// Character counter - updates live as the user types
+textarea.addEventListener("input", () => {
+    const len = textarea.value.trim().length;
+    charCounter.textContent = `${len} / 10 minimum`;
+    charCounter.className = len >= 10
+        ? "text-xs text-emerald-600 dark:text-emerald-400"
+        : "text-xs text-slate-400 dark:text-slate-500";
+});
+
+
+
+// Ctrl+Enter to submit - just triggers the same button the mouse click uses,
+// so there's exactly one place the actual submit logic lives
+textarea.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key === "Enter") {
+        document.getElementById("analyze-btn").click();
+    }
+});
+
+document.getElementById("analyze-btn").addEventListener("click", async () => {
+    const text = textarea.value.trim();
+    const loading = document.getElementById("loading");
+    const resultCard = document.getElementById("result-card");
+    const btn = document.getElementById("analyze-btn");
+
+    resultCard.classList.add("hidden");
+
+    if (text.length < 10) {
+        showToast("Please enter at least 10 characters.");
+        return;
+    }
+
+    btn.disabled = true;
+    loading.classList.remove("hidden");
+
+    try {
+        const res = await fetch("/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+            },
+            body: JSON.stringify({ complaint_text: text }),
+        });
+
+        if (res.status === 401) {
+            localStorage.removeItem("access_token");
+            window.location.href = "/login-page";
+            return;
+        }
+        if (!res.ok) throw new Error("Something went wrong. Please try again.");
+
+        const data = await res.json();
+        renderResult(data);
+    } catch (err) {
+        showToast(err.message);
+    } finally {
+        btn.disabled = false;
+        loading.classList.add("hidden");
+    }
+});
+
+function renderResult(data) {
+    const isRelief = data.predicted_label === "Relief";
+    const pct = Math.round(data.probability_of_relief * 100);
+    const colorClass = isRelief ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400";
+
+    document.getElementById("result-label").textContent = data.predicted_label;
+    document.getElementById("result-label").className =
+        "text-xl font-semibold " + (isRelief ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400");
+
+    // Gauge math: circumference = 2 * PI * r (r=38 here) ≈ 238.76.
+    // dashoffset counts DOWN from the full circumference as the percentage
+    // goes up - offset=0 means the full ring is drawn, offset=circumference
+    // means none of it is.
+    const circumference = 238.76;
+    const offset = circumference - (pct / 100) * circumference;
+
+    const ring = document.getElementById("gauge-ring");
+    ring.setAttribute("stroke-dashoffset", offset);
+    ring.setAttribute("class", `transition-all duration-1000 ease-out ${isRelief ? "stroke-emerald-500" : "stroke-rose-500"}`);
+
+    const gaugeText = document.getElementById("gauge-text");
+    gaugeText.textContent = pct + "%";
+    gaugeText.setAttribute("class", colorClass);
+
+    document.getElementById("result-meaning").textContent = data.meaning;
+    document.getElementById("result-explanation").textContent = data.explanation;
+    document.getElementById("result-tip").textContent = data.tip;
+
+    renderWordChips("words-relief", data.top_words_toward_relief, "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300");
+    renderWordChips("words-no-relief", data.top_words_toward_no_relief, "bg-rose-100 dark:bg-rose-900/40 text-rose-800 dark:text-rose-300");
+
+    document.getElementById("result-card").classList.remove("hidden");
+}
+
+function renderWordChips(containerId, words, colorClasses) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    if (!words || words.length === 0) {
+        container.innerHTML = '<span class="text-xs text-slate-400 dark:text-slate-500">None detected</span>';
+        return;
+    }
+    words.forEach((w) => {
+        const chip = document.createElement("span");
+        chip.className = `text-xs px-2 py-1 rounded-full ${colorClasses}`;
+        chip.textContent = w.word;
+        container.appendChild(chip);
+    });
+}
+</script>
+{% endblock %}

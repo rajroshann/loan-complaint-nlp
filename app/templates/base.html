@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}ReliefIQ{% endblock %}</title>
+
+    <link
+        rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖️</text></svg>"
+    >
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class"
+        };
+    </script>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <!-- Prevent light-mode flash -->
+    <script>
+        if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.classList.add("dark");
+        }
+    </script>
+</head>
+
+
+<body class="
+    min-h-screen
+    bg-gradient-to-br
+    from-[#D9E1EC]
+    via-[#CBD5E1]
+    to-[#DDD8D2]
+    dark:bg-gradient-to-b
+    dark:from-slate-950
+    dark:via-slate-900
+    dark:to-zinc-900
+    text-slate-800
+    dark:text-slate-100
+    transition-colors
+">
+
+
+    <!-- ================= NAVBAR ================= -->
+
+<nav class="
+    bg-[#172033]
+    dark:bg-slate-800
+    border-b
+    border-[#2A3548]
+    dark:border-slate-700
+    px-3
+    sm:px-6
+    py-4
+    sm:py-5
+">
+
+    <div class="
+        max-w-7xl
+        mx-auto
+        w-full
+        flex
+        flex-wrap
+        items-center
+        justify-between
+        gap-y-3
+    ">
+
+        <!-- Brand -->
+        <a
+            href="/home-page"
+            class="
+                flex
+                items-center
+                gap-2
+                font-semibold
+                text-base
+                sm:text-lg
+                text-white
+                shrink-0
+            "
+        >
+            <span>⚖️</span>
+            <span>ReliefIQ</span>
+        </a>
+
+
+        <!-- Navigation -->
+        <div class="
+            flex
+            items-center
+            gap-2
+            sm:gap-4
+            text-xs
+            sm:text-sm
+            shrink-0
+        ">
+
+            <a
+                href="/home-page"
+                class="
+                    text-white/80
+                    hover:text-white
+                    transition
+                "
+            >
+                Home
+            </a>
+
+            <a
+                href="/predict-page"
+                class="
+                    text-white/80
+                    hover:text-white
+                    transition
+                "
+            >
+                Analyze
+            </a>
+
+            <a
+                href="/history-page"
+                class="
+                    text-white/80
+                    hover:text-white
+                    transition
+                "
+            >
+                History
+            </a>
+
+            <a
+                href="/login-page"
+                class="
+                    text-white/80
+                    hover:text-white
+                    transition
+                "
+            >
+                Login
+            </a>
+
+            <button
+                id="theme-toggle"
+                type="button"
+                aria-label="Toggle dark mode"
+                class="
+                    ml-1
+                    w-8
+                    h-8
+                    shrink-0
+                    rounded-full
+                    bg-white/10
+                    hover:bg-white/20
+                    flex
+                    items-center
+                    justify-center
+                    transition
+                "
+            >
+                <img
+                    id="theme-icon"
+                    src="/static/icons/moon.png"
+                    alt="Toggle theme"
+                    class="w-5 h-5"
+                >
+            </button>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+    <!-- ================= PAGE CONTENT ================= -->
+
+    <main class="w-full">
+        {% block content %}{% endblock %}
+    </main>
+
+
+    <!-- ================= THEME SCRIPT ================= -->
+
+    <script>
+
+        const toggleBtn = document.getElementById("theme-toggle");
+        const themeIcon = document.getElementById("theme-icon");
+
+        function updateIcon() {
+
+            if (!themeIcon) return;
+
+            themeIcon.src =
+                document.documentElement.classList.contains("dark")
+                    ? "/static/icons/sun.png"
+                    : "/static/icons/moon.png";
+        }
+
+        updateIcon();
+
+
+        if (toggleBtn) {
+
+            toggleBtn.addEventListener("click", () => {
+
+                document.documentElement.classList.toggle("dark");
+
+                localStorage.setItem(
+                    "theme",
+                    document.documentElement.classList.contains("dark")
+                        ? "dark"
+                        : "light"
+                );
+
+                updateIcon();
+
+            });
+
+        }
+
+    </script>
+
+
+    <!-- ================= TOAST CONTAINER ================= -->
+
+    <div
+        id="toast-container"
+        class="
+            fixed
+            top-4
+            right-4
+            z-50
+            space-y-2
+            max-w-[calc(100vw-2rem)]
+        "
+    ></div>
+
+
+    <!-- ================= TOAST + SESSION SCRIPT ================= -->
+
+    <script>
+
+        function showToast(message, type = "error") {
+
+            const container =
+                document.getElementById("toast-container");
+
+            const toast =
+                document.createElement("div");
+
+            const colors =
+                type === "error"
+                    ? "bg-rose-600 dark:bg-rose-700"
+                    : "bg-emerald-600 dark:bg-emerald-700";
+
+            toast.className = `
+                ${colors}
+                text-white
+                text-sm
+                px-4
+                py-3
+                rounded-lg
+                shadow-lg
+                flex
+                items-center
+                gap-2
+                max-w-full
+                translate-x-[120%]
+                transition-transform
+                duration-300
+            `;
+
+            toast.innerHTML = `
+                <span>${type === "error" ? "⚠️" : "✓"}</span>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+
+            requestAnimationFrame(() => {
+                toast.classList.remove("translate-x-[120%]");
+            });
+
+
+            setTimeout(() => {
+
+                toast.classList.add("translate-x-[120%]");
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+
+            }, 4000);
+        }
+
+
+        // ================= SESSION EXPIRY =================
+
+        function parseJwt(token) {
+
+            try {
+
+                const base64Url =
+                    token.split(".")[1];
+
+                const base64 =
+                    base64Url
+                        .replace(/-/g, "+")
+                        .replace(/_/g, "/");
+
+                return JSON.parse(atob(base64));
+
+            } catch {
+
+                return null;
+
+            }
+        }
+
+
+        function watchSessionExpiry() {
+
+            const token =
+                localStorage.getItem("access_token");
+
+            if (!token) return;
+
+
+            const payload =
+                parseJwt(token);
+
+            if (!payload || !payload.exp) return;
+
+
+            const expiresAt =
+                payload.exp * 1000;
+
+            const msUntilExpiry =
+                expiresAt - Date.now();
+
+            const warnBeforeMs =
+                5 * 60 * 1000;
+
+
+            if (msUntilExpiry <= 0) {
+
+                localStorage.removeItem("access_token");
+
+                return;
+            }
+
+
+            if (msUntilExpiry > warnBeforeMs) {
+
+                setTimeout(() => {
+
+                    showToast(
+                        "Your session will expire in 5 minutes."
+                    );
+
+                }, msUntilExpiry - warnBeforeMs);
+            }
+
+
+            setTimeout(() => {
+
+                localStorage.removeItem("access_token");
+
+                showToast(
+                    "Your session has expired. Please log in again."
+                );
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "/login-page";
+
+                }, 1500);
+
+            }, msUntilExpiry);
+
+        }
+
+
+        watchSessionExpiry();
+
+    </script>
+
+</body>
+
+</html>

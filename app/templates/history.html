@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+{% block title %}History — ReliefIQ{% endblock %}
+
+{% block content %}
+
+<div class="
+    max-w-5xl
+    mx-auto
+    px-4
+    sm:px-6
+    py-10
+    sm:py-14
+">
+
+    <!-- ================= HEADER ================= -->
+
+    <div class="mb-7">
+
+        <h1 class="
+            text-2xl
+            sm:text-3xl
+            font-semibold
+            text-[#172033]
+            dark:text-white
+            mb-2
+        ">
+            Your Prediction History
+        </h1>
+
+        <p class="
+            text-[#667085]
+            dark:text-slate-400
+            text-sm
+        ">
+            Every complaint you've analyzed, most recent first.
+        </p>
+
+    </div>
+
+
+    <!-- ================= FILTERS ================= -->
+
+    <div
+        class="
+            flex
+            flex-wrap
+            gap-2
+            mb-7
+        "
+    >
+
+        <button
+            id="filter-all"
+            onclick="setFilter(null)"
+            class="
+                text-sm
+                px-4
+                py-2
+                rounded-full
+                font-medium
+                transition
+            "
+        >
+            All
+        </button>
+
+        <button
+            id="filter-relief"
+            onclick="setFilter('Relief')"
+            class="
+                text-sm
+                px-4
+                py-2
+                rounded-full
+                font-medium
+                transition
+            "
+        >
+            Relief
+        </button>
+
+        <button
+            id="filter-no-relief"
+            onclick="setFilter('No Relief')"
+            class="
+                text-sm
+                px-4
+                py-2
+                rounded-full
+                font-medium
+                transition
+            "
+        >
+            No Relief
+        </button>
+
+    </div>
+
+
+    <!-- ================= EMPTY STATE ================= -->
+
+    <div
+        id="empty-state"
+        class="
+            hidden
+            bg-[#F8F7F3]
+            dark:bg-slate-800
+            rounded-2xl
+            shadow-[0_10px_30px_rgba(15,23,42,0.06)]
+            dark:shadow-lg
+            border
+            border-[#E2E0DA]
+            dark:border-slate-700
+            p-8
+            sm:p-10
+            text-center
+            text-[#667085]
+            dark:text-slate-400
+        "
+    >
+
+        <div class="text-3xl mb-3">
+            📋
+        </div>
+
+        <p id="empty-state-text" class="text-sm mb-2">
+            You haven't analyzed any complaints yet.
+        </p>
+
+        <a
+            href="/predict-page"
+            class="
+                text-emerald-700
+                dark:text-emerald-400
+                font-medium
+                underline
+                underline-offset-2
+            "
+        >
+            Try one now
+        </a>
+
+    </div>
+
+
+    <!-- ================= HISTORY ================= -->
+
+    <div
+        id="history-list"
+        class="space-y-4"
+    ></div>
+
+</div>
+
+<script>
+const token = localStorage.getItem("access_token");
+if (!token) window.location.href = "/login-page";
+
+let currentFilter = null;   // null = "All"
+
+function setFilter(label) {
+    currentFilter = label;
+    updateFilterButtons();
+    loadHistory();
+}
+
+function updateFilterButtons() {
+    const buttons = {
+        "filter-all": null,
+        "filter-relief": "Relief",
+        "filter-no-relief": "No Relief",
+    };
+    for (const [id, value] of Object.entries(buttons)) {
+        const btn = document.getElementById(id);
+        const isActive = value === currentFilter;
+        btn.className = isActive
+            ? "text-sm px-3 py-1.5 rounded-full font-medium transition bg-slate-900 dark:bg-white text-white dark:text-slate-900"
+            : "text-sm px-3 py-1.5 rounded-full font-medium transition bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600";
+    }
+}
+
+async function loadHistory() {
+    try {
+        const url = currentFilter
+            ? `/history?label=${encodeURIComponent(currentFilter)}`
+            : "/history";
+
+        const res = await fetch(url, {
+            headers: { "Authorization": "Bearer " + token },
+        });
+
+        if (res.status === 401) {
+            localStorage.removeItem("access_token");
+            window.location.href = "/login-page";
+            return;
+        }
+        if (!res.ok) throw new Error("Could not load history.");
+
+        const items = await res.json();
+        renderHistory(items);
+    } catch (err) {
+        showToast(err.message);
+    }
+}
+
+function renderHistory(items) {
+    const list = document.getElementById("history-list");
+    const emptyState = document.getElementById("empty-state");
+    const emptyText = document.getElementById("empty-state-text");
+
+    list.innerHTML = "";
+    emptyState.classList.add("hidden");
+
+    if (items.length === 0) {
+        emptyText.textContent = currentFilter
+            ? `No "${currentFilter}" predictions yet.`
+            : "You haven't analyzed any complaints yet.";
+        emptyState.classList.remove("hidden");
+        return;
+    }
+
+    list.innerHTML = items.map((item) => {
+        const isRelief = item.predicted_label === "Relief";
+        const date = new Date(item.created_at).toLocaleString();
+        const pct = Math.round(item.confidence * 100);
+        const safeId = "complaint-" + item.id;
+
+       return `
+    <div class="
+        bg-[#F8F7F3]
+        dark:bg-slate-800
+        rounded-2xl
+        shadow-[0_10px_30px_rgba(15,23,42,0.06)]
+        dark:shadow-lg
+        border
+        border-[#E2E0DA]
+        dark:border-slate-700
+        p-5
+        sm:p-6
+    ">
+
+        <div class="
+            flex
+            flex-col
+            sm:flex-row
+            sm:justify-between
+            sm:items-start
+            gap-2
+            mb-3
+        ">
+
+            <span class="
+                font-semibold
+                ${isRelief
+                    ? "text-emerald-700 dark:text-emerald-400"
+                    : "text-rose-700 dark:text-rose-400"}
+            ">
+                ${item.predicted_label}
+            </span>
+
+            <span class="
+                font-bold
+                text-lg
+                ${isRelief
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-rose-600 dark:text-rose-400"}
+            ">
+                ${pct}%
+            </span>
+
+        </div>
+
+
+        <p
+            id="${safeId}"
+            class="
+                text-[#526071]
+                dark:text-slate-300
+                text-sm
+                leading-relaxed
+                mb-4
+                break-words
+            "
+        >
+            ${escapeHtml(item.complaint_text)}
+        </p>
+
+
+        <div class="
+            flex
+            flex-col
+            sm:flex-row
+            sm:justify-between
+            sm:items-center
+            gap-2
+        ">
+
+            <p class="
+                text-xs
+                text-slate-400
+                dark:text-slate-500
+            ">
+                ${date}
+            </p>
+
+            <button
+                id="copy-${safeId}"
+                onclick="copyText('${safeId}', 'copy-${safeId}')"
+                class="
+                    self-start
+                    sm:self-auto
+                    text-xs
+                    text-slate-400
+                    dark:text-slate-500
+                    hover:text-emerald-700
+                    dark:hover:text-emerald-400
+                    transition
+                "
+            >
+                📋 Copy
+            </button>
+
+        </div>
+
+    </div>
+`;
+    }).join("");
+}
+
+async function copyText(sourceElementId, buttonId) {
+    const text = document.getElementById(sourceElementId).textContent;
+    const btn = document.getElementById(buttonId);
+    const original = btn.textContent;
+
+    try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = "✓ Copied!";
+    } catch (err) {
+        btn.textContent = "Copy failed";
+    }
+
+    setTimeout(() => { btn.textContent = original; }, 2000);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+updateFilterButtons();
+loadHistory();
+</script>
+{% endblock %}

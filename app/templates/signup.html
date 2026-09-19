@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% block title %}Sign Up — ReliefIQ{% endblock %}
+
+{% block content %}
+
+<div class="
+    min-h-[calc(100vh-65px)]
+    bg-gradient-to-br
+    from-[#D9E1EC]
+    via-[#CBD5E1]
+    to-[#DDD8D2]
+    dark:bg-gradient-to-br
+    dark:from-slate-900
+    dark:via-blue-900
+    dark:to-emerald-800
+    px-4
+    sm:px-6
+    py-12
+    sm:py-16
+    lg:py-20
+">
+
+    <!-- Welcome Section -->
+    <div class="max-w-md mx-auto text-center mb-8">
+
+        <div class="text-4xl mb-3">
+            ⚖️
+        </div>
+
+        <h1 class="
+            text-3xl
+            font-bold
+            text-[#172033]
+            dark:text-white
+            mb-2
+        ">
+            Join ReliefIQ
+        </h1>
+
+        <p class="
+            text-[#4B5563]
+            dark:text-blue-100
+            text-sm
+            leading-relaxed
+        ">
+            AI-powered insight into your loan complaint's likely outcome.
+        </p>
+
+    </div>
+
+
+    <!-- Signup Card -->
+    <div class="
+        w-full
+        max-w-md
+        mx-auto
+        bg-[#F8F7F3]
+        dark:bg-slate-800
+        border
+        border-[#E2E0DA]
+        dark:border-slate-700
+        rounded-2xl
+        shadow-[0_20px_50px_rgba(15,23,42,0.12)]
+        dark:shadow-2xl
+        p-6
+        sm:p-8
+    ">
+
+        <h2 class="
+            text-xl
+            font-semibold
+            text-[#172033]
+            dark:text-white
+            mb-1
+        ">
+            Create your account
+        </h2>
+
+        <p class="
+            text-[#667085]
+            dark:text-slate-400
+            text-sm
+            mb-6
+        ">
+            Free, no credit card needed.
+        </p>
+
+
+        <form id="signup-form" class="space-y-5">
+
+            <!-- Email -->
+            <div>
+
+                <label
+                    class="
+                        block
+                        text-sm
+                        font-medium
+                        text-[#344054]
+                        dark:text-slate-300
+                        mb-1.5
+                    "
+                >
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    required
+                    class="
+                        w-full
+                        min-w-0
+                        rounded-lg
+                        border
+                        border-[#C8CDD5]
+                        dark:border-slate-600
+                        bg-white
+                        dark:bg-slate-700
+                        text-[#172033]
+                        dark:text-white
+                        px-3
+                        py-2.5
+                        placeholder:text-slate-400
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-blue-500/40
+                        focus:border-blue-500
+                        transition
+                    "
+                >
+
+            </div>
+
+
+            <!-- Password -->
+            <div>
+
+                <label
+                    class="
+                        block
+                        text-sm
+                        font-medium
+                        text-[#344054]
+                        dark:text-slate-300
+                        mb-1.5
+                    "
+                >
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    required
+                    minlength="8"
+                    class="
+                        w-full
+                        min-w-0
+                        rounded-lg
+                        border
+                        border-[#C8CDD5]
+                        dark:border-slate-600
+                        bg-white
+                        dark:bg-slate-700
+                        text-[#172033]
+                        dark:text-white
+                        px-3
+                        py-2.5
+                        placeholder:text-slate-400
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-blue-500/40
+                        focus:border-blue-500
+                        transition
+                    "
+                >
+
+                <p class="
+                    text-xs
+                    text-[#7A8493]
+                    dark:text-slate-500
+                    mt-1
+                ">
+                    At least 8 characters.
+                </p>
+
+            </div>
+
+
+            <!-- Signup Button -->
+            <button
+                type="submit"
+                id="signup-btn"
+                class="
+                    w-full
+                    bg-gradient-to-r
+                    from-blue-600
+                    to-emerald-600
+                    text-white
+                    rounded-lg
+                    py-2.5
+                    font-semibold
+                    shadow-md
+                    shadow-blue-900/10
+                    hover:from-blue-700
+                    hover:to-emerald-700
+                    hover:shadow-lg
+                    active:scale-[0.99]
+                    transition-all
+                    duration-200
+                    disabled:opacity-50
+                "
+            >
+                Sign Up
+            </button>
+
+        </form>
+
+
+        <!-- Login Link -->
+        <p class="
+            text-sm
+            text-[#667085]
+            dark:text-slate-400
+            mt-5
+            text-center
+            leading-relaxed
+        ">
+
+            Already have an account?
+
+            <a
+                href="/login-page"
+                class="
+                    text-emerald-700
+                    dark:text-emerald-400
+                    font-semibold
+                    hover:text-emerald-800
+                    dark:hover:text-emerald-300
+                    underline
+                    underline-offset-2
+                "
+            >
+                Log in
+            </a>
+
+        </p>
+
+    </div>
+
+
+    <!-- Trust Indicators -->
+    <div class="
+        w-full
+        max-w-md
+        mx-auto
+        flex
+        flex-wrap
+        justify-center
+        gap-x-6
+        gap-y-2
+        mt-8
+        text-xs
+        text-[#526071]
+        dark:text-blue-100
+        text-center
+    ">
+
+        <span>✓ Free to use</span>
+        <span>✓ AI-powered</span>
+        <span>✓ Built on real CFPB outcomes</span>
+
+    </div>
+
+</div>
+
+
+<script>
+document.getElementById("signup-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const btn = document.getElementById("signup-btn");
+
+    btn.disabled = true;
+
+    try {
+
+        // Step 1: create the account
+        const signupRes = await fetch("/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+        });
+
+        if (!signupRes.ok) {
+
+            const data = await signupRes.json();
+
+            throw new Error(
+                data.detail || "Signup failed."
+            );
+        }
+
+
+        // Step 2: immediately log in
+        const loginRes = await fetch("/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+        });
+
+        if (!loginRes.ok) {
+
+            throw new Error(
+                "Account created, but auto-login failed. Please log in."
+            );
+        }
+
+
+        const loginData = await loginRes.json();
+
+        localStorage.setItem(
+            "access_token",
+            loginData.access_token
+        );
+
+        window.location.href = "/home-page";
+
+    } catch (err) {
+
+        showToast(err.message);
+
+        btn.disabled = false;
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+name: Run Tests
+
+# Trigger: run this workflow every time code is pushed, on any branch
+on: [push]
+
+jobs:
+  test:
+    # Which "computer" GitHub spins up for us - a fresh Ubuntu Linux machine
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Get your code onto that temporary machine
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # Step 2: Install Python (matching the version your project uses)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Step 3: Install all your project's dependencies from requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 4: One-time NLTK data download - the SAME thing you ran manually
+      # in Step 6, needed here because this is a completely fresh machine
+      # with no files from your computer on it.
+      - name: Download NLTK data
+        run: |
+          python -c "import nltk; nltk.download('stopwords'); nltk.download('wordnet'); nltk.download('omw-1.4'); nltk.download('punkt_tab')"
+
+      # Step 5: Actually run the tests
+      - name: Run pytest
+        env:
+          DATABASE_URL: "sqlite:///./test.db"
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_PROVIDER: "groq"
+        run: pytest -v
