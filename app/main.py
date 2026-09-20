@@ -4,6 +4,9 @@ from app.db.database import Base, engine
 from app.db import models  # noqa: F401 — registers tables with Base before create_all runs
 from fastapi.staticfiles import StaticFiles
 from app.routers import auth, predict,history,pages  # add predict here and history here
+from fastapi.responses import RedirectResponse
+
+
 
 # Ensures tables exist every time the server starts - safe to call repeatedly,
 # it does nothing if they already exist. Means you no longer need to
@@ -11,6 +14,10 @@ from app.routers import auth, predict,history,pages  # add predict here and hist
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Loan Complaint NLP API")
+
+@app.get("/")
+def root():
+    return RedirectResponse(url="/home-page")
 
 app.include_router(auth.router)
 app.include_router(predict.router)      # add this line
